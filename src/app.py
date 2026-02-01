@@ -2,9 +2,9 @@ import streamlit as st
 from agente import SentinelaAI
 
 # Configuração da Página
-st.set_page_config(page_title="Sentinela Financeiro", page_icon="🛡️")
+st.set_page_config(page_title="Sentinela Financeiro", page_icon="🫡")
 
-st.title("🛡️ Sentinela: Seu Guardião Financeiro")
+st.title("🫡 Sentinela: Seu Guardião Financeiro")
 
 # Inicializa o Agente
 if "agente" not in st.session_state:
@@ -18,7 +18,7 @@ if "agente" not in st.session_state:
 st.sidebar.header("⚙️ Simulação de Persona")
 tipo_perfil = st.sidebar.selectbox(
     "Quem está usando agora?",
-    ("endividado", "investidor")
+    ("endividado", "investidor", "equilibrista")
 )
 
 st.sidebar.info(
