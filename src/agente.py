@@ -15,7 +15,7 @@ class SentinelaAI:
             raise ValueError("A chave GOOGLE_API_KEY não foi encontrada no .env")
         
         genai.configure(api_key=api_key)
-        self.model = genai.GenerativeModel('gemini-1.5-flash')
+        self.model = genai.GenerativeModel('gemini-2.5-flash')
         
         # Carrega a "Memória" (Base de Conhecimento)
         try:
