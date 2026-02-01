@@ -1,0 +1,23 @@
+{
+  "usuario": {
+    "id": "usr_1000",
+    "nome": "Bruno",
+    "perfil_financeiro": "foco_controle"
+  },
+  "estado_atual": {
+    "saldo_conta": 1250.00,
+    "total_contas_pendentes": 1100.00,
+    "dias_ate_proximo_salario": 12,
+    "limite_cartao_disponivel": 300.00
+  },
+  "analise_fluxo": {
+    "saldo_livre_real": 150.00,
+    "meta_gasto_diario_max": 12.50,
+    "status_mes": "alerta_amarelo"
+  },
+  "regras_agente": {
+    "bloquear_parcelamentos_novos": true,
+    "alerta_antecipado_contas": true,
+    "tom_de_voz": "pratico_cauteloso"
+  }
+}

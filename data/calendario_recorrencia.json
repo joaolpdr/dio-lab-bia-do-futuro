@@ -1,0 +1,20 @@
+[
+  {
+    "descricao": "Aluguel",
+    "dia_vencimento": 5,
+    "valor_estimado": 1200.00,
+    "tipo": "fixo_obrigatorio"
+  },
+  {
+    "descricao": "Assinatura Streaming",
+    "dia_vencimento": 15,
+    "valor_estimado": 55.90,
+    "tipo": "fixo_opcional"
+  },
+  {
+    "descricao": "Fatura Cartão Nubank",
+    "dia_vencimento": 10,
+    "valor_estimado": "variavel",
+    "fonte_dados": "api_cartao"
+  }
+]

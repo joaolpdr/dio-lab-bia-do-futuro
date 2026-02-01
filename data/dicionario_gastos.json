@@ -1,0 +1,24 @@
+{
+  "categorias_usuario": [
+    {
+      "nome": "Sobrevivência",
+      "tags": ["aluguel", "luz", "água", "mercado_essencial", "farmacia"],
+      "meta_mensal": 1500.00
+    },
+    {
+      "nome": "Estilo de Vida",
+      "tags": ["uber", "ifood", "netflix", "academia", "spotify"],
+      "meta_mensal": 400.00
+    },
+    {
+      "nome": "Torradeira de Dinheiro",
+      "tags": ["bar", "jogo", "compras_impulso", "taxa_banco"],
+      "meta_mensal": 100.00
+    }
+  ],
+  "regras_categorizacao": {
+    "UBER*": "Estilo de Vida",
+    "MC DONALDS": "Estilo de Vida",
+    "DROGASIL": "Sobrevivência"
+  }
+}

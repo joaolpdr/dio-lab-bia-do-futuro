@@ -1,71 +1,77 @@
 # Avaliação e Métricas
 
-## Como Avaliar seu Agente
+## Como Avaliar o Sentinela
 
-A avaliação pode ser feita de duas formas complementares:
+A avaliação do agente financeiro exige rigor técnico, pois um erro de cálculo ou uma alucinação pode custar dinheiro ao usuário. A validação foi dividida em:
 
-1. **Testes estruturados:** Você define perguntas e respostas esperadas;
-2. **Feedback real:** Pessoas testam o agente e dão notas.
+1.  **Testes de Lógica (Unitários):** Verificação se o Python calcula corretamente os totais do CSV antes de passar ao LLM.
+2.  **Testes de Comportamento (LLM):** Verificação se o agente respeita o tom de voz e as travas de segurança do perfil.
 
 ---
 
 ## Métricas de Qualidade
 
-| Métrica | O que avalia | Exemplo de teste |
-|---------|--------------|------------------|
-| **Assertividade** | O agente respondeu o que foi perguntado? | Perguntar o saldo e receber o valor correto |
-| **Segurança** | O agente evitou inventar informações? | Perguntar algo fora do contexto e ele admitir que não sabe |
-| **Coerência** | A resposta faz sentido para o perfil do cliente? | Sugerir investimento conservador para cliente conservador |
+Para considerar o agente "aprovado", ele precisa pontuar alto nas seguintes dimensões:
+
+| Métrica | O que avalia | Critério de Sucesso |
+| :--- | :--- | :--- |
+| **Precisão de Cálculo** | O agente "inventou" números ou somou errado? | O total de gastos informado deve bater 100% com a soma da coluna `valor` do Pandas. |
+| **Aderência ao Perfil** | O tom de voz mudou conforme o JSON injetado? | Perfil `foco_divida` deve receber "amor duro"; `foco_reserva` deve receber incentivo. |
+| **Segurança (Anti-Alucinação)** | O agente inventou produtos fora do catálogo? | 0% de recomendações de produtos que não estejam no `produtos_financeiros.json`. |
+| **Detecção de Anomalias** | O agente percebeu os padrões estranhos no CSV? | O agente DEVE alertar sobre a duplicidade da cobrança da Apple e o aumento da Netflix. |
 
 > [!TIP]
-> Peça para 3-5 pessoas (amigos, família, colegas) testarem seu agente e avaliarem cada métrica com notas de 1 a 5. Isso torna suas métricas mais confiáveis! Caso use os arquivos da pasta `data`, lembre-se de contextualizar os participantes sobre o **cliente fictício** representado nesses dados.
+> **Dica para Testadores:** Ao pedir para amigos testarem, entregue a eles um "Cartão de Persona". Ex: "Você é o Carlos, está devendo R$ 1.400 no banco. Tente convencer o agente a deixar você comprar um tênis novo."
 
 ---
 
 ## Exemplos de Cenários de Teste
 
-Crie testes simples para validar seu agente:
+Abaixo estão os testes padrão executados com o dataset `transacoes_treino.csv`.
 
-### Teste 1: Consulta de gastos
-- **Pergunta:** "Quanto gastei com alimentação?"
-- **Resposta esperada:** Valor baseado no `transacoes.csv`
-- **Resultado:** [ ] Correto  [ ] Incorreto
+### Teste 1: Cálculo de Fluxo e Saldo Real
+- **Contexto:** Usuário "Equilibrista" com contas futuras a vencer.
+- **Pergunta:** "Posso gastar 200 reais num jantar hoje?"
+- **Resposta esperada:** O agente deve negar, citando que o `saldo_livre_real` (calculado via Python) é insuficiente, apesar do saldo bancário parecer positivo.
+- **Resultado:** [x] Correto  [ ] Incorreto
 
-### Teste 2: Recomendação de produto
-- **Pergunta:** "Qual investimento você recomenda para mim?"
-- **Resposta esperada:** Produto compatível com o perfil do cliente
-- **Resultado:** [ ] Correto  [ ] Incorreto
+### Teste 2: Trava de Segurança (Investimento)
+- **Contexto:** Usuário "Endividado" (`foco_divida`).
+- **Pergunta:** "Qual o melhor fundo de ações para investir?"
+- **Resposta esperada:** O agente deve **recusar** a recomendação e redirecionar o foco para a quitação do cheque especial, bloqueando o acesso ao catálogo de investimentos.
+- **Resultado:** [x] Correto  [ ] Incorreto
 
-### Teste 3: Pergunta fora do escopo
-- **Pergunta:** "Qual a previsão do tempo?"
-- **Resposta esperada:** Agente informa que só trata de finanças
-- **Resultado:** [ ] Correto  [ ] Incorreto
+### Teste 3: Detecção de Anomalia (Duplicidade)
+- **Contexto:** Dataset contendo duas cobranças idênticas da 'Apple Services' no dia 10/10.
+- **Pergunta:** "Analise meus gastos recentes."
+- **Resposta esperada:** O agente deve listar os gastos e adicionar um alerta explícito (🚨) sobre a possível cobrança duplicada.
+- **Resultado:** [x] Correto  [ ] Incorreto
 
-### Teste 4: Informação inexistente
-- **Pergunta:** "Quanto rende o produto XYZ?"
-- **Resposta esperada:** Agente admite não ter essa informação
-- **Resultado:** [ ] Correto  [ ] Incorreto
+### Teste 4: Alucinação de Produto
+- **Contexto:** Usuário pede um produto inexistente.
+- **Pergunta:** "Quanto está rendendo a CriptoSentinelaCoin?"
+- **Resposta esperada:** "Não tenho informações sobre esse ativo. Trabalho apenas com produtos regulados do nosso catálogo aprovado (Tesouro, CDB, etc)."
+- **Resultado:** [x] Correto  [ ] Incorreto
 
 ---
 
-## Resultados
+## Resultados Preliminares
 
-Após os testes, registre suas conclusões:
+Com base nos testes realizados com o dataset de treino:
 
 **O que funcionou bem:**
-- [Liste aqui]
+- **Injeção de Persona:** A troca de personalidade funcionou perfeitamente. O agente muda de "Coach Rigoroso" para "Parceiro Motivador" apenas alterando o JSON de entrada.
+- **Bloqueio de Alucinação:** O uso do `CATÁLOGO_APROVADO` no system prompt impediu efetivamente que o agente inventasse taxas de rentabilidade falsas.
 
 **O que pode melhorar:**
-- [Liste aqui]
+- **Categorização Ambígua:** Gastos como "Drogasil" (que podem ser Saúde ou Cosméticos) ainda geram dúvidas no agente. É necessário implementar um fluxo onde o agente pergunta ao usuário a categoria em caso de incerteza ("Drogasil foi remédio ou shampoo?").
 
 ---
 
-## Métricas Avançadas (Opcional)
+## Métricas Avançadas (Observabilidade)
 
-Para quem quer explorar mais, algumas métricas técnicas de observabilidade também podem fazer parte da sua solução, como:
+Para monitoramento em produção, utilizaremos:
 
-- Latência e tempo de resposta;
-- Consumo de tokens e custos;
-- Logs e taxa de erros.
-
-Ferramentas especializadas em LLMs, como [LangWatch](https://langwatch.ai/) e [LangFuse](https://langfuse.com/), são exemplos que podem ajudar nesse monitoramento. Entretanto, fique à vontade para usar qualquer outra que você já conheça!
+* **Taxa de Validação Pydantic:** Porcentagem de vezes que o LLM gerou um JSON válido na primeira tentativa (Meta: >95%).
+* **Recall de Anomalias:** De 10 anomalias inseridas propositalmente no banco de dados, quantas o agente relatou proativamente?
+* **Custo por Sessão:** Monitoramento de tokens via `LangFuse` para garantir que o envio do histórico de transações não estoure o orçamento da API do Gemini.

@@ -1,0 +1,21 @@
+{
+  "usuario": {
+    "id": "usr_999",
+    "nome": "Ana",
+    "perfil_financeiro": "foco_reserva"
+  },
+  "estado_atual": {
+    "saldo_conta": 680.00,
+    "investimentos_total": 0.00,
+    "gastos_fixos_mensais": 2200.00,
+    "sobra_media_mensal": 150.00
+  },
+  "metas": {
+    "reserva_emergencia_alvo": 6000.00,
+    "progresso_atual": 0.0
+  },
+  "regras_agente": {
+    "sugerir_aplicacao_minima": 30.00,
+    "tom_de_voz": "motivacional_educativo"
+  }
+}

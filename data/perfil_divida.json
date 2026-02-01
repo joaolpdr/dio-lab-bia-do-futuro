@@ -1,0 +1,22 @@
+{
+  "usuario": {
+    "id": "usr_998",
+    "nome": "Carlos",
+    "perfil_financeiro": "foco_divida"
+  },
+  "estado_atual": {
+    "saldo_conta": -1450.00,
+    "limite_cheque_especial": 2000.00,
+    "fatura_cartao_aberta": 3200.00,
+    "vencimento_fatura": "2026-02-05"
+  },
+  "metricas_risco": {
+    "taxa_juros_diaria": 14.50,
+    "dias_no_vermelho": 12,
+    "score_credito": 450
+  },
+  "regras_agente": {
+    "bloquear_sugestao_lazer": true,
+    "prioridade_mensagem": "alerta_urgente"
+  }
+}

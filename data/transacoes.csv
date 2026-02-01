@@ -1,11 +1,21 @@
 data,descricao,categoria,valor,tipo
-2025-10-01,Salário,receita,5000.00,entrada
-2025-10-02,Aluguel,moradia,1200.00,saida
-2025-10-03,Supermercado,alimentacao,450.00,saida
-2025-10-05,Netflix,lazer,55.90,saida
-2025-10-07,Farmácia,saude,89.00,saida
-2025-10-10,Restaurante,alimentacao,120.00,saida
-2025-10-12,Uber,transporte,45.00,saida
-2025-10-15,Conta de Luz,moradia,180.00,saida
-2025-10-20,Academia,saude,99.00,saida
-2025-10-25,Combustível,transporte,250.00,saida
+2025-10-01,Pix Recebido Empresa X,Renda,3500.00,entrada
+2025-10-02,Aluguel Outubro,Moradia,-1200.00,fixo
+2025-10-02,Net Claro Residencial,Contas Fixas,-129.90,fixo
+2025-10-03,Uber Viagem,Transporte,-14.90,variavel
+2025-10-03,Uber Viagem,Transporte,-22.40,variavel
+2025-10-04,iFood Lanche,Alimentação,-45.50,variavel
+2025-10-05,Spotify Premium,Assinatura,-21.90,fixo
+2025-10-05,Drogasil Farmácia,Saúde,-89.90,variavel
+2025-10-06,Saque Banco24h,Dinheiro Vivo,-100.00,variavel
+2025-10-07,Mercado Livre Eletro,Compras,-250.00,variavel
+2025-10-08,Posto Ipiranga Combustível,Transporte,-150.00,variavel
+2025-10-10,Apple Services,Assinatura,-10.90,fixo
+2025-10-10,Apple Services,Assinatura,-10.90,fixo
+2025-10-11,Outback Jantar,Lazer,-280.00,variavel
+2025-10-12,Padaria do Zé,Alimentação,-15.00,variavel
+2025-10-15,Mecânico João,Manutenção,-450.00,variavel
+2025-10-15,Starbucks Café,Lazer,-28.00,variavel
+2025-10-20,Netflix Mensal,Assinatura,-55.90,fixo
+2025-10-25,Pagamento Fatura Cartão,Pagamentos,-1800.00,transferencia
+2025-10-28,Smartfit Academia,Saúde,-119.90,fixo

@@ -1,42 +1,57 @@
 [
   {
+    "id": "tesouro_selic",
     "nome": "Tesouro Selic",
     "categoria": "renda_fixa",
     "risco": "baixo",
+    "liquidez": "D+1",
     "rentabilidade": "100% da Selic",
     "aporte_minimo": 30.00,
-    "indicado_para": "Reserva de emergência e iniciantes"
+    "indicado_para": "Reserva de emergência e iniciantes",
+    "perfis_compativeis": ["foco_reserva", "foco_controle", "foco_rentabilidade"]
   },
   {
+    "id": "cdb_liq_diaria",
     "nome": "CDB Liquidez Diária",
     "categoria": "renda_fixa",
     "risco": "baixo",
+    "liquidez": "D+0",
     "rentabilidade": "102% do CDI",
     "aporte_minimo": 100.00,
-    "indicado_para": "Quem busca segurança com rendimento diário"
+    "indicado_para": "Quem busca segurança com rendimento diário",
+    "perfis_compativeis": ["foco_reserva", "foco_controle", "foco_rentabilidade"]
   },
   {
-    "nome": "LCI/LCA",
+    "id": "lci_90",
+    "nome": "LCI/LCA (Isento IR)",
     "categoria": "renda_fixa",
     "risco": "baixo",
+    "liquidez": "D+90",
     "rentabilidade": "95% do CDI",
     "aporte_minimo": 1000.00,
-    "indicado_para": "Quem pode esperar 90 dias (isento de IR)"
+    "indicado_para": "Quem pode esperar 90 dias",
+    "perfis_compativeis": ["foco_rentabilidade", "foco_controle"]
   },
   {
-    "nome": "Fundo Multimercado",
+    "id": "fundo_mult",
+    "nome": "Fundo Multimercado Strategy",
     "categoria": "fundo",
     "risco": "medio",
+    "liquidez": "D+30",
     "rentabilidade": "CDI + 2%",
     "aporte_minimo": 500.00,
-    "indicado_para": "Perfil moderado que busca diversificação"
+    "indicado_para": "Perfil moderado que busca diversificação",
+    "perfis_compativeis": ["foco_rentabilidade"]
   },
   {
-    "nome": "Fundo de Ações",
+    "id": "fundo_acoes",
+    "nome": "Fundo de Ações Long Bias",
     "categoria": "fundo",
     "risco": "alto",
+    "liquidez": "D+30",
     "rentabilidade": "Variável",
     "aporte_minimo": 100.00,
-    "indicado_para": "Perfil arrojado com foco no longo prazo"
+    "indicado_para": "Perfil arrojado com foco no longo prazo",
+    "perfis_compativeis": ["foco_rentabilidade"]
   }
 ]
