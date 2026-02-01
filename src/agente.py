@@ -4,57 +4,40 @@ import json
 import os
 from dotenv import load_dotenv
 
-# Carrega variáveis de ambiente
 load_dotenv()
 
 class SentinelaAI:
     def __init__(self):
-        # 1. Configuração da API
         api_key = os.getenv("GOOGLE_API_KEY")
         if not api_key:
             raise ValueError("A chave GOOGLE_API_KEY não foi encontrada no .env")
         
         self.client = genai.Client(api_key=api_key)
         
-        # 2. Configuração de Caminhos (A Mágica acontece aqui)
-        # Pega o diretório onde este arquivo (agente.py) está: .../src
+        # Configuração de Caminhos
         base_dir = os.path.dirname(os.path.abspath(__file__))
-        
-        # Define o caminho da pasta data: .../src/../data (que vira .../data)
         self.data_dir = os.path.join(base_dir, '..', 'data')
-        
-        # Caminho do CSV
         csv_path = os.path.join(self.data_dir, 'transacoes.csv')
 
-        # 3. Carrega a Base de Conhecimento (CSV)
         try:
             self.df_transacoes = pd.read_csv(csv_path)
         except FileNotFoundError:
-            # Cria um dataframe vazio para não quebrar o app se o CSV sumir
-            print(f"ERRO: Arquivo não encontrado em {csv_path}")
             self.df_transacoes = pd.DataFrame(columns=['data','descricao','categoria','valor','tipo'])
 
     def _carregar_perfil(self, tipo_perfil):
-        """Carrega o JSON usando caminho absoluto"""
         filename = f"perfil_{tipo_perfil}.json"
         caminho_arquivo = os.path.join(self.data_dir, filename)
-        
         try:
             with open(caminho_arquivo, 'r', encoding='utf-8') as f:
                 return json.load(f)
         except FileNotFoundError:
-            # Retorna um perfil de emergência caso o arquivo não exista
-            return {
-                "nome": "Usuário (Perfil Não Encontrado)",
-                "perfil_financeiro": "padrao",
-                "saldo_atual": 0.0
-            }
+            return {"nome": "Usuário", "perfil_financeiro": "padrao", "saldo_atual": 0.0}
 
     def _analisar_dados(self):
-        """Lógica Python pura para processar dados"""
         if self.df_transacoes.empty:
             return {"total_gasto": 0, "top_gastos": [], "alerta": ""}
 
+        # Garante tratamento de erros caso colunas mudem
         if 'tipo' in self.df_transacoes.columns:
             gastos_reais = self.df_transacoes[
                 (self.df_transacoes['valor'] < 0) & 
@@ -64,48 +47,66 @@ class SentinelaAI:
             gastos_reais = self.df_transacoes[self.df_transacoes['valor'] < 0]
         
         total_gasto = gastos_reais['valor'].sum()
-        top_gastos = gastos_reais.nsmallest(3, 'valor')[['descricao', 'valor']].to_dict('records')
+        
+        # Pega Top Gastos apenas se houver dados
+        if not gastos_reais.empty:
+            top_gastos = gastos_reais.nsmallest(3, 'valor')[['descricao', 'valor']].to_dict('records')
+        else:
+            top_gastos = []
         
         duplicadas = self.df_transacoes[self.df_transacoes.duplicated(subset=['data', 'descricao', 'valor'], keep=False)]
-        alerta_anomalia = ""
-        if not duplicadas.empty:
-            lista = duplicadas['descricao'].unique().tolist()
-            alerta_anomalia = f"ALERTA: Detectei transações duplicadas: {lista}"
+        alerta = f"ALERTA (CSV Antigo): Transações duplicadas detectadas no histórico: {duplicadas['descricao'].unique().tolist()}" if not duplicadas.empty else ""
             
-        return {
-            "total_gasto": total_gasto,
-            "top_gastos": top_gastos,
-            "alerta": alerta_anomalia
-        }
+        return {"total_gasto": total_gasto, "top_gastos": top_gastos, "alerta": alerta}
 
-    def gerar_resposta(self, mensagem_usuario, tipo_perfil):
+    def exportar_csv(self):
+        if self.df_transacoes.empty: return ""
+        cols = [c for c in ['data', 'descricao', 'categoria', 'valor', 'tipo'] if c in self.df_transacoes.columns]
+        return self.df_transacoes[cols].to_csv(index=False)
+
+    def gerar_resposta(self, mensagem_usuario, tipo_perfil, dados_extras=None):
         perfil = self._carregar_perfil(tipo_perfil)
         analise = self._analisar_dados()
         
-        # System Prompt Atualizado com o Perfil Equilibrista
+        if dados_extras is None: dados_extras = {}
+
+        # PROMPT DE COMPORTAMENTO REFINADO
         system_prompt = f"""
-        Você é o Sentinela. Aja conforme o perfil abaixo.
+        Você é o Sentinela, um consultor financeiro pessoal.
         
-        --- DADOS DO USUÁRIO ---
-        Nome: {perfil.get('nome', 'Usuário')}
-        Perfil: {perfil.get('perfil_financeiro', 'padrao')} 
+        --- SEU CONTEXTO ATUAL ---
+        O usuário acabou de preencher um formulário de onboarding.
+        Nome: {dados_extras.get('nome', perfil.get('nome', 'Usuário'))}
+        Renda Declarada Agora: R$ {dados_extras.get('renda', '0.00')}
+        Despesas Fixas Declaradas: {dados_extras.get('fixas', 'Não informadas')}
+        Perfil Comportamental: {perfil.get('perfil_financeiro', 'padrao')}
         
-        DIRETRIZES DE TOM:
-        - Se 'foco_divida': Seja rígido, estilo "amor duro".
-        - Se 'foco_reserva': Seja motivador e celebre investimentos.
-        - Se 'foco_controle': Seja cauteloso e prático (Alerta de risco/Equilibrista).
-        
-        Saldo Atual: R$ {perfil.get('saldo_atual', 0)}
-        
-        --- ANÁLISE DO EXTRATO ---
-        Total Gasto no Período: R$ {analise['total_gasto']:.2f}
+        --- DADOS DO ARQUIVO CSV (HISTÓRICO) ---
+        (Atenção: Estes dados podem ser antigos ou estar desatualizados em relação à renda declarada acima)
+        Total de Gastos Registrados: R$ {analise['total_gasto']:.2f}
         Maiores Gastos: {analise['top_gastos']}
         {analise['alerta']}
         
-        --- PERGUNTA DO USUÁRIO ---
-        "{mensagem_usuario}"
+        --- DIRETRIZES DE PERSONALIDADE ---
+        1. PRIORIDADE ZERO: Use a 'Renda Declarada Agora' como verdade absoluta. Se o CSV mostrar saldo 0 ou negativo, assuma que o CSV está desatualizado e PRECISAS ser preenchido.
+        2. NÃO VOMITE NÚMEROS: Não comece listando gastos do CSV (como Apple Services) a menos que o usuário pergunte especificamente sobre o histórico.
+        3. TOM DE VOZ:
+           - 'endividado': Amor duro. Foco em parar de gastar.
+           - 'equilibrista': Prático. Foco em organizar para sobrar.
+           - 'investidor': Estratégico. Foco em rentabilidade.
         
-        Responda de forma curta, direta e usando o tom adequado ao perfil.
+        --- FORMATO DE RESPOSTA ---
+        - Sempre que pedir para adicionar um gasto, mostre o modelo:
+          "💡 *Exemplo:* `50.00 - Pizza - Lazer`"
+        - Se o usuário pedir CSV/Planilha, adicione [DOWNLOAD_CSV] no final.
+        
+        --- INSTRUÇÃO PARA ESTA MENSAGEM ---
+        O usuário disse: "{mensagem_usuario}"
+        
+        Se a mensagem do usuário for curta (tipo "Oi", "Vamos", "Claro"), ignore o CSV antigo e faça o onboarding:
+        1. Confirme que entendeu a renda de R$ {dados_extras.get('renda')}.
+        2. Confirme as despesas fixas.
+        3. Pergunte quais são os gastos variáveis recentes para começar a popular a planilha nova.
         """
         
         response = self.client.models.generate_content(
